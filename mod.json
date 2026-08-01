@@ -1,9 +1,9 @@
 {
-    "displayName": "Mod Template",
-    "description": "Mindustry Java mod template, complete with EntityAnno integration.",
-    "version": "v1.0",
+    "displayName": "Reverie",
+    "description": "Will you bear witness to my dreams?",
+    "version": "v0.1",
     "minGameVersion": "159.7",
-    "author": "You",
+    "author": "Chime Tian",
     "java": true,
-    "main": "template.ModTemplate"
+    "main": "reverie.Reverie"
 }

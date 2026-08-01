@@ -1,9 +1,9 @@
-package template;
+package reverie;
 
 import mindustry.mod.*;
-import template.gen.*;
+import reverie.gen.*;
 
-public class ModTemplate extends Mod{
+public class Reverie extends Mod{
     @Override
     public void loadContent(){
         EntityRegistry.register();
