@@ -4,6 +4,7 @@ import arc.*;
 import mindustry.game.EventType.*;
 import mindustry.mod.*;
 import mindustry.mod.Mods.*;
+import reverie.content.*;
 import reverie.gen.*;
 import reverie.graphics.*;
 
@@ -29,6 +30,8 @@ public class Reverie extends Mod{
     @Override
     public void loadContent(){
         EntityRegistry.register();
+
+        REnv.load();
     }
 
     public static boolean isModEnabled(){

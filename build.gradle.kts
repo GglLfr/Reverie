@@ -50,6 +50,7 @@ plugins{
 
 val mindustryVersion = providers.gradleProperty("mindustryVersion").get()
 val entVersion = providers.gradleProperty("entVersion").get()
+val envAllocVersion = providers.gradleProperty("envAllocVersion").get()
 
 val mindustry = if(mindustryVersion == "be") "MindustryBuilds" else "Mindustry"
 val modName = providers.gradleProperty("modName").get()
@@ -64,6 +65,10 @@ fun mindustry(): String{
 
 fun entity(module: String): String{
     return "com.github.GglLfr.EntityAnno$module:$entVersion"
+}
+
+fun envAlloc(): String{
+    return "com.github.GglLfr:EnvAlloc:$envAllocVersion"
 }
 
 allprojects{
@@ -138,6 +143,7 @@ allprojects{
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://oss.sonatype.org/content/repositories/releases/")
         maven("https://raw.githubusercontent.com/GglLfr/EntityAnnoMaven/main")
+        maven("https://raw.githubusercontent.com/GglLfr/EnvAllocMaven/main")
     }
 
     tasks.withType<JavaCompile>().configureEach{
@@ -180,6 +186,7 @@ project(":"){
         add("kapt", entity(":entity"))
 
         compileOnly(mindustry())
+        compileOnly(envAlloc())
     }
 
     val jar = tasks.named<Jar>("jar"){
