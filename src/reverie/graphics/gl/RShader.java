@@ -10,6 +10,14 @@ public class RShader extends Shader{
         super(vert, frag);
     }
 
+    public String prependVertex(){
+        return "";
+    }
+
+    public String prependFragment(){
+        return "";
+    }
+
     @Override
     protected String preprocess(String source, boolean fragment){
         if(source.contains("#ifdef GL_ES")){
@@ -34,10 +42,12 @@ public class RShader extends Shader{
                     #endif
                     
                     %s
+                    %s
                     """,
                 version,
                 (source.contains("#define HIGHP") && !source.contains("//#define HIGHP") ? "highp" : "mediump"),
-                source
+                prependFragment(),
+                source.substring(prependFragmentCode.length())
             );
         }else{
             source = String.format(
@@ -50,9 +60,11 @@ public class RShader extends Shader{
                     #endif
                     
                     %s
+                    %s
                     """,
                 version,
-                source
+                prependVertex(),
+                source.substring(prependVertexCode.length())
             );
         }
 

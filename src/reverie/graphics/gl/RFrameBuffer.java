@@ -4,6 +4,7 @@ import arc.graphics.*;
 import arc.graphics.Pixmap.*;
 import arc.graphics.Texture.*;
 import arc.graphics.gl.*;
+import arc.struct.*;
 import arc.util.*;
 
 public class RFrameBuffer extends FrameBuffer{
@@ -39,7 +40,7 @@ public class RFrameBuffer extends FrameBuffer{
     }
 
     public @Nullable Texture getStencilTexture(){
-        return hasStencil ? textureAttachments.get(hasDepth ? 2 : 1) : null;
+        return hasStencil ? textureAttachments.get(1) : null;
     }
 
     @Override
@@ -50,8 +51,16 @@ public class RFrameBuffer extends FrameBuffer{
 
         var builder = new FrameBufferBuilder(width, height);
         builder.addBasicColorTextureAttachment(format);
-        if(hasDepth) builder.addDepthTextureAttachment(Gl.depthComponent, Gl.floatV);
-        if(hasStencil) builder.addStencilTextureAttachment(Gl.stencilIndex8, Gl.unsignedByte);
+        if(hasDepth && hasStencil){
+            var spec = new FrameBufferTextureAttachmentSpec(GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, GL30.GL_UNSIGNED_INT_24_8);
+            Reflect.set(FrameBufferTextureAttachmentSpec.class, spec, "isDepth", true);
+            Reflect.set(FrameBufferTextureAttachmentSpec.class, spec, "isStencil", true);
+            Reflect.<Seq<FrameBufferTextureAttachmentSpec>>get(GLFrameBufferBuilder.class, builder, "textureAttachmentSpecs").add(spec);
+        }else if(hasDepth){
+            builder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_INT);
+        }else if(hasStencil){
+            builder.addStencilTextureAttachment(GL30.GL_STENCIL_INDEX8, GL30.GL_UNSIGNED_BYTE);
+        }
 
         this.hasDepth = hasDepth;
         this.hasStencil = hasStencil;
@@ -78,8 +87,16 @@ public class RFrameBuffer extends FrameBuffer{
 
         var builder = new FrameBufferBuilder(width, height);
         builder.addBasicColorTextureAttachment(format);
-        if(hasDepth) builder.addDepthTextureAttachment(Gl.depthComponent, Gl.floatV);
-        if(hasStencil) builder.addStencilTextureAttachment(Gl.stencilIndex8, Gl.unsignedByte);
+        if(hasDepth && hasStencil){
+            var spec = new FrameBufferTextureAttachmentSpec(GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, GL30.GL_UNSIGNED_INT_24_8);
+            Reflect.set(FrameBufferTextureAttachmentSpec.class, spec, "isDepth", true);
+            Reflect.set(FrameBufferTextureAttachmentSpec.class, spec, "isStencil", true);
+            Reflect.<Seq<FrameBufferTextureAttachmentSpec>>get(GLFrameBufferBuilder.class, builder, "textureAttachmentSpecs").add(spec);
+        }else if(hasDepth){
+            builder.addDepthTextureAttachment(GL30.GL_DEPTH_COMPONENT24, GL30.GL_UNSIGNED_INT);
+        }else if(hasStencil){
+            builder.addStencilTextureAttachment(GL30.GL_STENCIL_INDEX8, GL30.GL_UNSIGNED_BYTE);
+        }
 
         bufferBuilder = builder;
         textureAttachments.clear();

@@ -6,7 +6,6 @@ import arc.graphics.g2d.*;
 import arc.graphics.g3d.*;
 import arc.math.geom.*;
 import arc.util.*;
-import mindustry.graphics.*;
 import mindustry.graphics.g3d.*;
 import mindustry.type.*;
 import reverie.graphics.*;
@@ -15,7 +14,7 @@ import reverie.graphics.gl.*;
 import static arc.Core.*;
 import static mindustry.Vars.*;
 
-//TODO depth atmosphere shader can be removed once v9 lands
+// TODO: Depth atmosphere shader can be removed once v9 lands.
 public class BasePlanet extends Planet{
     public @Nullable RFrameBuffer buffer;
 
@@ -46,32 +45,18 @@ public class BasePlanet extends Planet{
         atmosphere.render(shader, Gl.triangles);
     }
 
-    public class AtmosphereHexMesh implements GenericMesh{
-        protected Mesh mesh;
+    public class AtmosphereMesh implements GenericMesh{
+        protected final GenericMesh mesh;
 
-        public AtmosphereHexMesh(HexMesher mesher, int divisions){
-            mesh = MeshBuilder.buildHex(mesher, divisions, radius, 0.2f);
-        }
-
-        public AtmosphereHexMesh(int divisions){
-            this(generator, divisions);
+        public AtmosphereMesh(GenericMesh mesh){
+            this.mesh = mesh;
         }
 
         @Override
         public void render(PlanetParams params, Mat3D projection, Mat3D transform){
-            buffer.resize(graphics.getWidth(), graphics.getHeight());
+            buffer.resize(params.viewW > 0 ? params.viewW : graphics.getWidth(), params.viewH > 0 ? params.viewH : graphics.getHeight());
             buffer.begin(Color.clear);
-
-            var shader = Shaders.planet;
-            shader.planet = BasePlanet.this;
-            shader.lightDir.set(solarSystem.position).sub(position).rotate(Vec3.Y, getRotation()).nor();
-            shader.ambientColor.set(solarSystem.lightColor);
-            shader.bind();
-            shader.setUniformMatrix4("u_proj", renderer.planets.cam.combined.val);
-            shader.setUniformMatrix4("u_trans", transform.val);
-            shader.apply();
-            mesh.render(shader, Gl.triangles);
-
+            mesh.render(params, projection, transform);
             buffer.end();
 
             var blit = RShaders.depthScreenspace;
