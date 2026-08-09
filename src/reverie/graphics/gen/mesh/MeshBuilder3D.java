@@ -29,30 +29,28 @@ public final class MeshBuilder3D{
         var skips = boolArrayPool.obtain();
         skips.setSize(grid.tiles.length);
 
-        int vertexCount = 0;
-        for(var t : grid.tiles){
-            if(!(skips.items[t.id] = outward.getHeight(t.v) < -inward.getHeight(t.v))){
-                vertexCount += t.corners.length * 2;
-            }
-        }
-        var indices = vertexCount < 65536 ? new short[3] : null;
-        int position = 0;
-
         var heights = floatArrayPool.obtain();
         heights.setSize(grid.corners.length * 2);
 
         // [outward, ..] + [inward, ..]
         for(var c : grid.corners){
-            float outHeight = (1f + outward.getHeight(c.v) * intensity) * radius;
-            float inHeight = (1f - inward.getHeight(c.v) * intensity) * radius;
+            heights.items[c.id] = (1f + outward.getHeight(c.v) * intensity) * radius;
+            heights.items[c.id + grid.corners.length] = (1f - inward.getHeight(c.v) * intensity) * radius;
+        }
 
-            if(outHeight < inHeight){
-                heights.items[c.id] = heights.items[c.id + grid.corners.length] = (outHeight + inHeight) / 2f;
+        int vertexCount = 0;
+        for(var t : grid.tiles){
+            if(!(skips.items[t.id] = outward.getHeight(t.v) < -inward.getHeight(t.v))){
+                vertexCount += t.corners.length * 2;
             }else{
-                heights.items[c.id] = outHeight;
-                heights.items[c.id + grid.corners.length] = inHeight;
+                for(var c : t.corners){
+                    float outHeight = heights.items[c.id], inHeight = heights.items[grid.corners.length + c.id];
+                    heights.items[c.id] = heights.items[grid.corners.length + c.id] = (outHeight + inHeight) / 2f;
+                }
             }
         }
+        var indices = vertexCount < 65536 ? new short[3] : null;
+        int position = 0;
 
         var col = new Color();
         var nor = new Vec3();
@@ -96,9 +94,9 @@ public final class MeshBuilder3D{
                     }
 
                     for(int i = 0; i < c.length - 2; i++){
-                        indices[i * 3] = (short)(position);
-                        indices[i * 3 + 1] = (short)(position + i + (isOutward ? 1 : 2));
-                        indices[i * 3 + 2] = (short)(position + i + (isOutward ? 2 : 1));
+                        indices[0] = (short)(position);
+                        indices[1] = (short)(position + i + (isOutward ? 1 : 2));
+                        indices[2] = (short)(position + i + (isOutward ? 2 : 1));
                         builder.indices(indices);
                     }
 

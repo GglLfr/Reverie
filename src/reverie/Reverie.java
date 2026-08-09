@@ -15,6 +15,8 @@ import static arc.Core.*;
 import static mindustry.Vars.*;
 
 public class Reverie extends Mod{
+    public static final boolean multithreaded = !OS.isAndroid;
+
     protected static LoadedMod mod;
 
     public Reverie(){

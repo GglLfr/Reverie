@@ -17,13 +17,10 @@ import static mindustry.Vars.*;
 @SuppressWarnings("unchecked")
 public class MultilevelPlanet extends BasePlanet{
     public int selectedLevel;
-    public final MultilevelSpec[] specs;
+    public MultilevelSpec[] specs = {};
 
-    public MultilevelPlanet(String name, Planet parent, float radius, MultilevelSpec... specs){
+    public MultilevelPlanet(String name, Planet parent, float radius){
         super(name, parent, radius, 0);
-
-        this.specs = specs;
-        if(specs.length == 0) throw new IllegalArgumentException("Must at least have one spec");
     }
 
     @Override
@@ -56,14 +53,17 @@ public class MultilevelPlanet extends BasePlanet{
                                     for(int i = 0; i < specs.length; i++){
                                         int level = i;
                                         t.button(
-                                                bundle.get(String.format("%s-spec-%d", name, level)),
+                                                bundle.get(String.format("%s.%s-spec-%d.name", getContentType(), name, level)),
                                                 Styles.flatTogglet,
-                                                () -> settings.putInt(String.format("%s-selected-level", name), selectedLevel = level)
+                                                () -> {
+                                                    ui.planet.viewPlanet(this, false);
+                                                    settings.putInt(String.format("%s-selected-level", name), selectedLevel = level);
+                                                }
                                             )
                                             .growX()
                                             .height(40f)
                                             .padLeft(40f)
-                                            .update(tt -> tt.setChecked(selectedLevel == level))
+                                            .update(tt -> tt.setChecked(ui.planet.state.planet == this && selectedLevel == level))
                                             .row();
                                     }
                                 })).maxHeight(Float.POSITIVE_INFINITY);
@@ -83,7 +83,9 @@ public class MultilevelPlanet extends BasePlanet{
         private final GenericMesh[] meshes = new GenericMesh[specs.length];
 
         {
+            long millis = Time.millis();
             for(int i = 0; i < specs.length; i++) meshes[i] = specs[i].mesh.get();
+            Log.debug("[Reverie] Took @ms to generate planet mesh for @.", Time.millis() - millis, localizedName);
         }
 
         @Override
