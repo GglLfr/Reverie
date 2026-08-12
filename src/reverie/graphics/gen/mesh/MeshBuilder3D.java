@@ -3,10 +3,13 @@ package reverie.graphics.gen.mesh;
 import arc.graphics.*;
 import arc.math.*;
 import arc.math.geom.*;
+import arc.util.*;
 import mindustry.graphics.g3d.*;
 import mindustry.graphics.g3d.PlanetGrid.*;
 import mindustry.maps.generators.*;
+import reverie.util.*;
 
+import static reverie.Reverie.*;
 import static reverie.util.Temporaries.*;
 
 public final class MeshBuilder3D{
@@ -15,6 +18,8 @@ public final class MeshBuilder3D{
     }
 
     public static Mesh buildHexDual(HexMesher outward, HexMesher inward, int divisions, float radius, float intensity){
+        Timers.mark();
+
         var grid = PlanetGrid.create(divisions);
         if(outward instanceof PlanetGenerator gen){
             gen.seed = gen.baseSeed;
@@ -50,7 +55,6 @@ public final class MeshBuilder3D{
             }
         }
         var indices = vertexCount < 65536 ? new short[3] : null;
-        int position = 0;
 
         var col = new Color();
         var nor = new Vec3();
@@ -77,21 +81,27 @@ public final class MeshBuilder3D{
                 (isOutward ? outward : inward).getColor(tile.v, col.set(1f, 1f, 1f, 1f));
 
                 float color = col.toFloatBits();
-                float emissive = 0f;
+                float emissive;
                 if(isOutward ? emitOutward : emitInward){
                     (isOutward ? outward : inward).getEmissiveColor(tile.v, col.set(0f, 0f, 0f, 0f));
                     emissive = col.toFloatBits();
+                }else{
+                    emissive = 0f;
                 }
 
                 if(indices != null){
-                    for(var corner : c){
-                        float height = heights.items[cOffset + corner.id];
+                    int position = builder.vertex(c.length, (verts, off) -> {
+                        for(var corner : c){
+                            float height = heights.items[cOffset + corner.id];
 
-                        builder.pos3d(corner.v.x * height, corner.v.y * height, corner.v.z * height);
-                        builder.normal(nor.x, nor.y, nor.z);
-                        builder.diffuse(color);
-                        if(emitOutward || emitInward) builder.emissive(emissive);
-                    }
+                            builder.pos3d(verts, off, corner.v.x * height, corner.v.y * height, corner.v.z * height);
+                            builder.normal(verts, off, nor.x, nor.y, nor.z);
+                            builder.diffuse(verts, off, color);
+                            if(emitOutward || emitInward) builder.emissive(verts, off, emissive);
+
+                            off += builder.stride;
+                        }
+                    });
 
                     for(int i = 0; i < c.length - 2; i++){
                         indices[0] = (short)(position);
@@ -99,30 +109,32 @@ public final class MeshBuilder3D{
                         indices[2] = (short)(position + i + (isOutward ? 2 : 1));
                         builder.indices(indices);
                     }
-
-                    position += c.length;
                 }else{
                     for(int i = 0; i < c.length - 2; i++){
-                        var corner = c[i];
                         float
-                            ca = heights.items[c[0].id],
-                            cb = heights.items[c[i + (isOutward ? 1 : 2)].id],
-                            cc = heights.items[c[i + (isOutward ? 2 : 1)].id];
+                            ca = heights.items[cOffset + c[0].id],
+                            cb = heights.items[cOffset + c[i + (isOutward ? 1 : 2)].id],
+                            cc = heights.items[cOffset + c[i + (isOutward ? 2 : 1)].id];
 
-                        builder.pos3d(corner.v.x * ca, corner.v.y * ca, corner.v.z * ca);
-                        builder.normal(nor.x, nor.y, nor.z);
-                        builder.diffuse(color);
-                        if(emitOutward || emitInward) builder.emissive(emissive);
+                        int index = i;
+                        builder.vertex(3, (verts, off) -> {
+                            builder.pos3d(verts, off, c[0].v.x * ca, c[0].v.y * ca, c[0].v.z * ca);
+                            builder.normal(verts, off, nor.x, nor.y, nor.z);
+                            builder.diffuse(verts, off, color);
+                            if(emitOutward || emitInward) builder.emissive(verts, off, emissive);
 
-                        builder.pos3d(corner.v.x * cb, corner.v.y * cb, corner.v.z * cb);
-                        builder.normal(nor.x, nor.y, nor.z);
-                        builder.diffuse(color);
-                        if(emitOutward || emitInward) builder.emissive(emissive);
+                            off += builder.stride;
+                            builder.pos3d(verts, off, c[index + (isOutward ? 1 : 2)].v.x * cb, c[index + (isOutward ? 1 : 2)].v.y * cb, c[index + (isOutward ? 1 : 2)].v.z * cb);
+                            builder.normal(verts, off, nor.x, nor.y, nor.z);
+                            builder.diffuse(verts, off, color);
+                            if(emitOutward || emitInward) builder.emissive(verts, off, emissive);
 
-                        builder.pos3d(corner.v.x * cc, corner.v.y * cc, corner.v.z * cc);
-                        builder.normal(nor.x, nor.y, nor.z);
-                        builder.diffuse(color);
-                        if(emitOutward || emitInward) builder.emissive(emissive);
+                            off += builder.stride;
+                            builder.pos3d(verts, off, c[index + (isOutward ? 2 : 1)].v.x * cc, c[index + (isOutward ? 2 : 1)].v.y * cc, c[index + (isOutward ? 2 : 1)].v.z * cc);
+                            builder.normal(verts, off, nor.x, nor.y, nor.z);
+                            builder.diffuse(verts, off, color);
+                            if(emitOutward || emitInward) builder.emissive(verts, off, emissive);
+                        });
                     }
                 }
             }
@@ -130,6 +142,7 @@ public final class MeshBuilder3D{
 
         floatArrayPool.free(heights);
         boolArrayPool.free(skips);
+        Log.debug("@ Took @ms to build dual hex mesh.", logTag, Timers.elapsed());
 
         return builder.build();
     }

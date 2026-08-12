@@ -10,9 +10,11 @@ import mindustry.game.EventType.*;
 import mindustry.graphics.g3d.*;
 import mindustry.type.*;
 import mindustry.ui.*;
+import reverie.util.*;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
+import static reverie.Reverie.*;
 
 @SuppressWarnings("unchecked")
 public class MultilevelPlanet extends BasePlanet{
@@ -26,7 +28,7 @@ public class MultilevelPlanet extends BasePlanet{
     @Override
     public void load(){
         super.load();
-        selectedLevel = settings.getInt(String.format("%s-selected-level", name), 0);
+        selectedLevel = settings.getInt(String.format("%s.%s.selected-level", getContentType(), name), 0);
 
         Events.on(ClientLoadEvent.class, e -> ui.planet.shown(() -> {
             for(var topChild : ui.planet.getChildren()){
@@ -53,11 +55,11 @@ public class MultilevelPlanet extends BasePlanet{
                                     for(int i = 0; i < specs.length; i++){
                                         int level = i;
                                         t.button(
-                                                bundle.get(String.format("%s.%s-spec-%d.name", getContentType(), name, level)),
+                                                bundle.get(String.format("%s.%s.spec-%d.name", getContentType(), name, level)),
                                                 Styles.flatTogglet,
                                                 () -> {
                                                     ui.planet.viewPlanet(this, false);
-                                                    settings.putInt(String.format("%s-selected-level", name), selectedLevel = level);
+                                                    settings.putInt(String.format("%s.%s.selected-level", getContentType(), name), selectedLevel = level);
                                                 }
                                             )
                                             .growX()
@@ -68,7 +70,7 @@ public class MultilevelPlanet extends BasePlanet{
                                     }
                                 })).maxHeight(Float.POSITIVE_INFINITY);
 
-                                Log.debug("[Reverie] Attached spec selection to UI dialog!");
+                                Log.debug("@ Attached spec selection to UI dialog!", logTag);
                                 return;
                             }
                         }
@@ -80,12 +82,13 @@ public class MultilevelPlanet extends BasePlanet{
 
     public class MultilevelMesh implements GenericMesh{
         private boolean disposed = false;
-        private final GenericMesh[] meshes = new GenericMesh[specs.length];
+        private final GenericMesh[] meshes;
 
         {
-            long millis = Time.millis();
-            for(int i = 0; i < specs.length; i++) meshes[i] = specs[i].mesh.get();
-            Log.debug("[Reverie] Took @ms to generate planet mesh for @.", Time.millis() - millis, localizedName);
+            Timers.mark();
+            meshes = Iterables.map(new GenericMesh[0], specs, MultilevelSpec::createMesh);
+
+            Log.debug("@ Took @ms to generate planet mesh for @.", logTag, Timers.elapsed(), localizedName);
         }
 
         @Override
@@ -106,5 +109,8 @@ public class MultilevelPlanet extends BasePlanet{
     }
 
     public record MultilevelSpec(Prov<GenericMesh> mesh){
+        public GenericMesh createMesh(){
+            return mesh.get();
+        }
     }
 }

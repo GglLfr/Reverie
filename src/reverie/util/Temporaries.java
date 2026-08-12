@@ -36,7 +36,7 @@ public final class Temporaries{
     }
 
     public static abstract class ConcurrentPool<T> extends Pool<T>{
-        private final LinkedBlockingDeque<T> free = new LinkedBlockingDeque<>();
+        private final ConcurrentLinkedQueue<T> free = new ConcurrentLinkedQueue<>();
 
         public ConcurrentPool(){
             super(0, Integer.MAX_VALUE);
