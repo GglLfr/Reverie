@@ -107,8 +107,8 @@ public final class MeshBuilder3D{
                             }
                         });
 
+                        indices[0] = (short)position;
                         for(int i = 0; i < c.length - 2; i++){
-                            indices[0] = (short)(position);
                             indices[1] = (short)(position + i + (isOutward ? 1 : 2));
                             indices[2] = (short)(position + i + (isOutward ? 2 : 1));
                             builder.indices(indices);

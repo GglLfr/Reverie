@@ -80,13 +80,12 @@ public class FloatBelt{
                 var oldTail = tail;
                 tail = next;
 
-                // Immediately release the lock so other threads can continue working.
-                setRelease(this.length, newLength);
                 // These fields aren't written within the lock because we know subsequent operations will not ever
                 // access this fragment in particular, therefore eliminating mutable aliasing.
                 oldTail.next = next;
                 oldTail.length = length - precedingLengthPrev;
 
+                setRelease(this.length, newLength);
                 enqueuer.get(next.data, 0);
             }
             return length;
@@ -113,9 +112,8 @@ public class FloatBelt{
 
             try{
                 if(head == tail){
-                    int headLength = head.length;
                     head.length = 0;
-                    return cons.get(head.data, headLength);
+                    return cons.get(head.data, current);
                 }else{
                     var newHead = new Segment();
                     newHead.data = new float[current];
