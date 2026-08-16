@@ -18,25 +18,6 @@ public class Reverie extends Mod{
 
     protected static LoadedMod mod;
 
-    public static final boolean hasMethodHandle, hasVarHandle, hasMemoryOrder;
-
-    static{
-        int sdk;
-        try{
-            var build = Class.forName("android.os.Build");
-            var version = build.getField("VERSION").get(null);
-            sdk = (int)version.getClass().getField("SDK_INT").get(version);
-        }catch(ClassNotFoundException | NoSuchFieldException e){
-            sdk = Integer.MAX_VALUE;
-        }catch(IllegalAccessException e){
-            throw new RuntimeException(e);
-        }
-
-        hasMethodHandle = sdk >= 26;
-        hasVarHandle = sdk >= 33;
-        hasMemoryOrder = sdk >= 33;
-    }
-
     public Reverie(){
         if(graphics != null && !graphics.getGLVersion().atLeast(3, app.isDesktop() ? 3 : 0)){
             throw new UnsupportedOperationException("Reverie only runs with OpenGL 3.3 (on desktop) or OpenGL ES 3.0 (on android) and above!");

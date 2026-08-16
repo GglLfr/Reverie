@@ -1,10 +1,14 @@
 package reverie.util;
 
+import reverie.*;
+
 import java.util.concurrent.atomic.*;
 
 import static reverie.Reverie.*;
 
 public final class Atomics{
+    public static final boolean hasMemoryOrder = Api.level >= Api.memoryOrder;
+
     private Atomics(){
         throw new AssertionError();
     }
