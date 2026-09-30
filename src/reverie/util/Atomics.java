@@ -4,8 +4,6 @@ import reverie.*;
 
 import java.util.concurrent.atomic.*;
 
-import static reverie.Reverie.*;
-
 public final class Atomics{
     public static final boolean hasMemoryOrder = Api.level >= Api.memoryOrder;
 
@@ -21,11 +19,27 @@ public final class Atomics{
         }
     }
 
+    public static <T> T getAcquire(AtomicReference<T> ref){
+        if(hasMemoryOrder){
+            return WithMemoryOrder.getAcquire(ref);
+        }else{
+            return ref.get();
+        }
+    }
+
     public static void setRelease(AtomicInteger integer, int value){
         if(hasMemoryOrder){
             WithMemoryOrder.setRelease(integer, value);
         }else{
-            integer.setRelease(value);
+            integer.lazySet(value);
+        }
+    }
+
+    public static <T> void setRelease(AtomicReference<T> ref, T value){
+        if(hasMemoryOrder){
+            WithMemoryOrder.setRelease(ref, value);
+        }else{
+            ref.setRelease(value);
         }
     }
 
@@ -47,8 +61,16 @@ public final class Atomics{
             return integer.getOpaque();
         }
 
+        private static <T> T getAcquire(AtomicReference<T> ref){
+            return ref.getAcquire();
+        }
+
         private static void setRelease(AtomicInteger integer, int value){
             integer.setRelease(value);
+        }
+
+        private static <T> void setRelease(AtomicReference<T> ref, T value){
+            ref.setRelease(value);
         }
 
         private static int compareExchangeAcquire(AtomicInteger integer, int expected, int next){

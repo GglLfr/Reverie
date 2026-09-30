@@ -10,6 +10,7 @@ import mindustry.graphics.g3d.*;
 import mindustry.type.*;
 import reverie.graphics.*;
 import reverie.graphics.gl.*;
+import reverie.util.*;
 
 import static arc.Core.*;
 import static mindustry.Vars.*;
@@ -30,8 +31,10 @@ public class BasePlanet extends Planet{
     public void load(){
         super.load();
         if(!headless && buffer == null){
-            buffer = new RFrameBuffer(2, 2, true);
-            buffer.getTexture().setFilter(TextureFilter.nearest);
+            Tasks.postOrNow(() -> {
+                buffer = new RFrameBuffer(2, 2, true);
+                buffer.getTexture().setFilter(TextureFilter.nearest);
+            });
         }
     }
 

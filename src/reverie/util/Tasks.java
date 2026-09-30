@@ -5,12 +5,16 @@ import arc.struct.*;
 import arc.util.*;
 
 import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
 
 import static arc.Core.*;
 
 public final class Tasks{
     private static final ThreadLocal<Seq<Runnable>> tasks = ThreadLocal.withInitial(() -> new Seq<>(Runnable.class));
     private static final ForkJoinPool pool;
+
+    private static long mainThreadId = -1;
+    private static final ThreadLocal<Lock> posts = ThreadLocal.withInitial(ReentrantLock::new);
 
     static{
         if(app.isDesktop() || app.isAndroid() && app.getVersion() >= 24){
@@ -22,6 +26,60 @@ public final class Tasks{
 
     private Tasks(){
         throw new AssertionError();
+    }
+
+    public static void initMainThread(){
+        mainThreadId = Thread.currentThread().getId();
+    }
+
+    public static void postOrNow(Runnable run){
+        if(Thread.currentThread().getId() == mainThreadId){
+            run.run();
+        }else{
+            app.post(run);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T postOrNowBlocking(Prov<T> prov){
+        var t = Thread.currentThread();
+        if(t.getId() == mainThreadId){
+            return prov.get();
+        }else{
+            record ThrowableWrapper(Throwable ex){
+            }
+
+            var out = new Object[]{null};
+            var lock = posts.get();
+            var cond = lock.newCondition();
+
+            app.post(() -> {
+                lock.lock();
+                try{
+                    try{
+                        out[0] = prov.get();
+                    }catch(Throwable ex){
+                        out[0] = new ThrowableWrapper(ex);
+                    }
+                    cond.signal();
+                }finally{
+                    lock.unlock();
+                }
+            });
+
+            Object res;
+            lock.lock();
+            try{
+                while((res = out[0]) == null) cond.await();
+            }catch(InterruptedException e){
+                throw new RuntimeException(e);
+            }finally{
+                lock.unlock();
+            }
+
+            if(res instanceof ThrowableWrapper w) throw new RuntimeException(w.ex);
+            return (T)res;
+        }
     }
 
     public static void scope(Cons<Cons<Runnable>> scope){

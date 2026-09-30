@@ -8,6 +8,7 @@ import mindustry.mod.Mods.*;
 import reverie.content.*;
 import reverie.gen.*;
 import reverie.graphics.*;
+import reverie.util.*;
 import reverie.util.debug.*;
 
 import static arc.Core.*;
@@ -27,6 +28,7 @@ public class Reverie extends Mod{
             Debugs.init();
         }
 
+        app.post(Tasks::initMainThread);
         Events.on(FileTreeInitEvent.class, e -> app.post(() -> {
             mod = mods.getMod(Reverie.class);
             if(isModEnabled()){
