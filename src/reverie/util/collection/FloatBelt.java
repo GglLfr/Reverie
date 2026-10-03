@@ -38,7 +38,6 @@ public class FloatBelt{
     /**
      * Extends the vector by `additional` elements, invoking a closure with an uninitialized slice to it and the
      * starting element's absolute index in the vector.
-     *
      * @param count    How many additional elements to add.
      * @param enqueuer Lambda acceptor for the target array.
      */
@@ -59,8 +58,9 @@ public class FloatBelt{
             var data = tail.data;
             if(data.length >= newLength - precedingLength){
                 // Immediately release the lock, because the fragment fits and the data slice we requested is guaranteed not to be aliased by this atomic store.
+                int offset = length - precedingLength;
                 setRelease(this.length, newLength);
-                enqueuer.get(data, length - precedingLength);
+                enqueuer.get(data, offset);
             }else{
                 // Try to allocate a new fragment and linking to it, releasing the lock as soon as possible.
                 Segment next;
@@ -95,44 +95,39 @@ public class FloatBelt{
     /**
      * Flattens the vector (if it isn't flattened already), invokes a closure with an owned slice, and clears the
      * vector.
-     *
+     * <p>
+     * Must be called exclusively, i.e. absolutely no other threads are calling {@link #enqueue(int, Enqueuer)}. Calls
+     * to this method must also constitute a happens-before relationship with calls to {@link #enqueue(int, Enqueuer)}.
      * @param cons Lambda acceptor for the flattened array.
      */
     public <T> T clear(Clearer<T> cons){
         int length = getOpaque(this.length) & mask;
-        while(true){
-            int actualLength;
-            if((actualLength = compareExchangeAcquire(this.length, length, lockFlag)) != length){
-                length = actualLength & mask;
-                continue;
-            }
+        if(compareExchangeAcquire(this.length, length, length | lockFlag) != length)
+            throw new IllegalStateException("`FloatBelt` requires exclusive access");
 
-            int precedingLength = this.precedingLength, current = length;
-            this.precedingLength = 0;
+        int newLength = length;
+        try{
+            if(head != tail){
+                var newHead = new Segment();
+                newHead.data = new float[length];
 
-            try{
-                if(head == tail){
-                    head.length = 0;
-                    return cons.get(head.data, current);
-                }else{
-                    var newHead = new Segment();
-                    newHead.data = new float[current];
+                int offset = 0;
+                for(var node = head; node != null; node = node.next){
+                    int nodeLength = node.next == null
+                        ? length - precedingLength
+                        : node.length;
 
-                    var node = head;
-                    head = tail = newHead;
-
-                    int offset = 0;
-                    for(; node != null; node = node.next){
-                        int nodeLength = node.next == null ? current - precedingLength : node.length;
-                        System.arraycopy(node.data, 0, newHead.data, offset, nodeLength);
-                        offset += nodeLength;
-                    }
-
-                    return cons.get(newHead.data, offset);
+                    System.arraycopy(node.data, 0, newHead.data, offset, nodeLength);
+                    offset += nodeLength;
                 }
-            }finally{
-                setRelease(this.length, 0);
+
+                head = tail = newHead;
             }
+
+            precedingLength = head.length = newLength = 0;
+            return cons.get(head.data, length);
+        }finally{
+            setRelease(this.length, newLength);
         }
     }
 
