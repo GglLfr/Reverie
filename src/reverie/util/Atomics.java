@@ -40,7 +40,7 @@ public final class Atomics{
         if(hasMemoryOrder){
             WithMemoryOrder.setRelease(ref, value);
         }else{
-            ref.setRelease(value);
+            ref.lazySet(value);
         }
     }
 
