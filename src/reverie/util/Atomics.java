@@ -4,6 +4,7 @@ import reverie.*;
 
 import java.util.concurrent.atomic.*;
 
+/** Provides a way to conditionally use atomic API that are only in Desktop Java 9+ and Android API 33+. */
 public final class Atomics{
     public static final boolean hasMemoryOrder = Api.level >= Api.memoryOrder;
 

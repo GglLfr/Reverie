@@ -3,8 +3,11 @@ package reverie.util;
 import arc.func.*;
 import arc.struct.*;
 import arc.util.*;
+import mindustry.mod.*;
+import reverie.*;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 import java.util.concurrent.locks.*;
 
 import static arc.Core.*;
@@ -13,11 +16,12 @@ public final class Tasks{
     private static final ThreadLocal<Seq<Runnable>> tasks = ThreadLocal.withInitial(() -> new Seq<>(Runnable.class));
     private static final ForkJoinPool pool;
 
-    private static long mainThreadId = -1;
-    private static final ThreadLocal<Lock> posts = ThreadLocal.withInitial(ReentrantLock::new);
+    private static volatile long mainThreadId = -1;
+    private static final Object sentinel = new Object();
+    private static final ThreadLocal<LockState> lockStates = ThreadLocal.withInitial(LockState::new);
 
     static{
-        if(app.isDesktop() || app.isAndroid() && app.getVersion() >= 24){
+        if(Api.level >= Api.commonForkJoinPool){
             pool = Reflect.invoke(ForkJoinPool.class, "commonPool");
         }else{
             pool = null;
@@ -28,8 +32,9 @@ public final class Tasks{
         throw new AssertionError();
     }
 
+    /** Safety: Must be called from {@link Mod#Mod()} off the main thread. */
     public static void initMainThread(){
-        mainThreadId = Thread.currentThread().getId();
+        blockingPostOrNow(() -> mainThreadId = Thread.currentThread().getId());
     }
 
     public static void postOrNow(Runnable run){
@@ -41,7 +46,7 @@ public final class Tasks{
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T postOrNowBlocking(Prov<T> prov){
+    public static <T> T blockingPostOrNow(Prov<T> prov){
         var t = Thread.currentThread();
         if(t.getId() == mainThreadId){
             return prov.get();
@@ -49,36 +54,35 @@ public final class Tasks{
             record ThrowableWrapper(Throwable ex){
             }
 
-            var out = new Object[]{null};
-            var lock = posts.get();
-            var cond = lock.newCondition();
-
+            var state = lockStates.get();
             app.post(() -> {
-                lock.lock();
+                state.lock.lock();
                 try{
                     try{
-                        out[0] = prov.get();
+                        state.result = prov.get();
                     }catch(Throwable ex){
-                        out[0] = new ThrowableWrapper(ex);
+                        state.result = new ThrowableWrapper(ex);
                     }
-                    cond.signal();
+                    state.condition.signal();
                 }finally{
-                    lock.unlock();
+                    state.lock.unlock();
                 }
             });
 
-            Object res;
-            lock.lock();
+            state.lock.lock();
             try{
-                while((res = out[0]) == null) cond.await();
+                while(state.result == sentinel) state.condition.await();
+
+                if(state.result instanceof ThrowableWrapper w) throw new RuntimeException(w.ex);
+                return (T)state.result;
             }catch(InterruptedException e){
+                lockStates.remove();
+                t.interrupt();
                 throw new RuntimeException(e);
             }finally{
-                lock.unlock();
+                state.result = sentinel;
+                state.lock.unlock();
             }
-
-            if(res instanceof ThrowableWrapper w) throw new RuntimeException(w.ex);
-            return (T)res;
         }
     }
 
@@ -86,27 +90,34 @@ public final class Tasks{
         class ScopeTask extends CountedCompleter<Void>{
             final Runnable[] tasks;
             final int start, end;
+            final AtomicReference<Throwable> error;
 
-            ScopeTask(CountedCompleter<?> completer, Runnable[] tasks, int start, int end){
+            ScopeTask(CountedCompleter<?> completer, Runnable[] tasks, int start, int end, AtomicReference<Throwable> error){
                 super(completer);
                 this.tasks = tasks;
                 this.start = start;
                 this.end = end;
+                this.error = error;
             }
 
             @Override
             public void compute(){
                 if(end - start == 1){
-                    tasks[start].run();
-                    propagateCompletion();
+                    try{
+                        tasks[start].run();
+                    }catch(Throwable t){
+                        error.compareAndSet(null, t);
+                    }finally{
+                        propagateCompletion();
+                    }
                     return;
                 }
 
                 int mid = (start + end) >>> 1;
                 addToPendingCount(1);
 
-                new ScopeTask(this, tasks, mid, end).fork();
-                new ScopeTask(this, tasks, start, mid).compute();
+                new ScopeTask(this, tasks, mid, end, error).fork();
+                new ScopeTask(this, tasks, start, mid, error).compute();
             }
         }
 
@@ -114,16 +125,32 @@ public final class Tasks{
             var stack = tasks.get();
             int start = stack.size;
 
-            scope.get(stack::add);
-            if(stack.size == start) return;
-
             try{
-                pool.invoke(new ScopeTask(null, stack.items, start, stack.size));
+                scope.get(stack::add);
+                if(stack.size == start) return;
+
+                AtomicReference<Throwable> error = new AtomicReference<>(null);
+                pool.invoke(new ScopeTask(null, stack.items, start, stack.size, error));
+
+                var t = error.get();
+                if(t != null) throw new RuntimeException(t);
             }finally{
                 stack.setSize(start);
             }
         }else{
             scope.get(Runnable::run);
+        }
+    }
+
+    private static class LockState{
+        private final Lock lock;
+        private final Condition condition;
+        private Object result;
+
+        private LockState(){
+            lock = new ReentrantLock();
+            condition = lock.newCondition();
+            result = sentinel;
         }
     }
 }

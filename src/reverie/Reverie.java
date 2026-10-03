@@ -28,7 +28,7 @@ public class Reverie extends Mod{
             Debugs.init();
         }
 
-        app.post(Tasks::initMainThread);
+        Tasks.initMainThread();
         Events.on(FileTreeInitEvent.class, e -> app.post(() -> {
             mod = mods.getMod(Reverie.class);
             if(isModEnabled()){
