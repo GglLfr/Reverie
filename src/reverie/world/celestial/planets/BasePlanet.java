@@ -39,6 +39,12 @@ public class BasePlanet extends Planet{
     }
 
     @Override
+    public void removeContent(){
+        super.removeContent();
+        if(buffer != null) buffer.dispose();
+    }
+
+    @Override
     public void drawAtmosphere(Mesh atmosphere, Camera3D cam){
         var shader = RShaders.depthAtmosphere;
         shader.camera = cam;

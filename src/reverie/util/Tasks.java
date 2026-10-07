@@ -8,7 +8,6 @@ import reverie.*;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
-import java.util.concurrent.locks.*;
 
 import static arc.Core.*;
 
@@ -17,8 +16,6 @@ public final class Tasks{
     private static final ForkJoinPool pool;
 
     private static volatile long mainThreadId = -1;
-    private static final Object sentinel = new Object();
-    private static final ThreadLocal<LockState> lockStates = ThreadLocal.withInitial(LockState::new);
 
     static{
         if(Api.level >= Api.commonForkJoinPool){
@@ -54,35 +51,34 @@ public final class Tasks{
             record ThrowableWrapper(Throwable ex){
             }
 
-            var state = lockStates.get();
+            class Latch extends CountDownLatch{
+                Object value;
+
+                Latch(){
+                    super(1);
+                }
+            }
+
+            var latch = new Latch();
             app.post(() -> {
-                state.lock.lock();
                 try{
-                    try{
-                        state.result = prov.get();
-                    }catch(Throwable ex){
-                        state.result = new ThrowableWrapper(ex);
-                    }
-                    state.condition.signal();
+                    latch.value = prov.get();
+                }catch(Throwable ex){
+                    latch.value = new ThrowableWrapper(ex);
                 }finally{
-                    state.lock.unlock();
+                    latch.countDown();
                 }
             });
 
-            state.lock.lock();
             try{
-                while(state.result == sentinel) state.condition.await();
-
-                if(state.result instanceof ThrowableWrapper w) throw new RuntimeException(w.ex);
-                return (T)state.result;
+                latch.await();
             }catch(InterruptedException e){
-                lockStates.remove();
-                t.interrupt();
+                Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
-            }finally{
-                state.result = sentinel;
-                state.lock.unlock();
             }
+
+            if(latch.value instanceof ThrowableWrapper w) throw new RuntimeException(w.ex);
+            return (T)latch.value;
         }
     }
 
@@ -139,18 +135,6 @@ public final class Tasks{
             }
         }else{
             scope.get(Runnable::run);
-        }
-    }
-
-    private static class LockState{
-        private final Lock lock;
-        private final Condition condition;
-        private Object result;
-
-        private LockState(){
-            lock = new ReentrantLock();
-            condition = lock.newCondition();
-            result = sentinel;
         }
     }
 }
