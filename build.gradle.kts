@@ -57,7 +57,6 @@ val (mindustry, mindustryVersion, mindustrySource) = when(val version = provider
     else -> Triple("Mindustry", version, "Anuken/Mindustry/releases/download/[revision]/dependencies.jar")
 }
 val entVersion = providers.gradleProperty("entVersion").get()
-val envAllocVersion = providers.gradleProperty("envAllocVersion").get()
 
 val modArtifact = providers.gradleProperty("modArtifact").get()
 val modFetch = providers.gradleProperty("modFetch").get()
@@ -118,7 +117,6 @@ allprojects{
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://oss.sonatype.org/content/repositories/releases/")
         maven("https://raw.githubusercontent.com/GglLfr/EntityAnnoMaven/main")
-        maven("https://raw.githubusercontent.com/GglLfr/EnvAllocMaven/main")
     }
 
     tasks.withType<JavaCompile>().configureEach{
@@ -155,7 +153,6 @@ project(":"){
         annotationProcessor("com.github.GglLfr.EntityAnno:entity:$entVersion")
 
         compileOnly("Anuken:$mindustry:$mindustryVersion")
-        compileOnly("com.github.GglLfr:EnvAlloc:$envAllocVersion")
     }
 
     val client = gradle.sharedServices.registerIfAbsent(MindustryClientPlugin.serviceName, MindustryClientService::class.java){}

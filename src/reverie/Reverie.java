@@ -41,8 +41,8 @@ public class Reverie extends Mod{
     public void loadContent(){
         EntityRegistry.register();
 
-        REnv.load();
         RPlanets.load();
+        EntityRegistry.registerUnits();
     }
 
     public static boolean isModEnabled(){
