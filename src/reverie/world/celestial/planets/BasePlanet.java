@@ -45,6 +45,18 @@ public class BasePlanet extends Planet{
     }
 
     @Override
+    public void draw(PlanetParams params, Mat3D projection, Mat3D transform){
+        buffer.resize(params.viewW > 0 ? params.viewW : graphics.getWidth(), params.viewH > 0 ? params.viewH : graphics.getHeight());
+        buffer.begin(Color.clear);
+        super.draw(params, projection, transform);
+        buffer.end();
+
+        var blit = RShaders.depthScreenspace;
+        blit.buffer = buffer;
+        Draw.blit(blit);
+    }
+
+    @Override
     public void drawAtmosphere(Mesh atmosphere, Camera3D cam){
         var shader = RShaders.depthAtmosphere;
         shader.camera = cam;
@@ -52,35 +64,5 @@ public class BasePlanet extends Planet{
         shader.bind();
         shader.apply();
         atmosphere.render(shader, Gl.triangles);
-    }
-
-    public class AtmosphereMesh implements GenericMesh{
-        protected final GenericMesh mesh;
-
-        public AtmosphereMesh(GenericMesh mesh){
-            this.mesh = mesh;
-        }
-
-        @Override
-        public void render(PlanetParams params, Mat3D projection, Mat3D transform){
-            buffer.resize(params.viewW > 0 ? params.viewW : graphics.getWidth(), params.viewH > 0 ? params.viewH : graphics.getHeight());
-            buffer.begin(Color.clear);
-            mesh.render(params, projection, transform);
-            buffer.end();
-
-            var blit = RShaders.depthScreenspace;
-            blit.buffer = buffer;
-            Draw.blit(blit);
-        }
-
-        @Override
-        public void dispose(){
-            mesh.dispose();
-        }
-
-        @Override
-        public boolean isDisposed(){
-            return mesh.isDisposed();
-        }
     }
 }

@@ -8,8 +8,8 @@ import mindustry.type.*;
 import reverie.graphics.gen.mesh.*;
 
 public class DualHexMesh extends PlanetMesh{
-    public DualHexMesh(Planet planet, HexMesher outward, HexMesher inward, int divisions, float intensity, Shader shader){
-        super(planet, MeshBuilder3D.buildHexDual(outward, inward, divisions, planet.radius, intensity), shader);
+    public DualHexMesh(Planet planet, HexMesher outward, HexMesher inward, int divisions, float radius, float intensity, Shader shader){
+        super(planet, MeshBuilder3D.buildHexDual(outward, inward, divisions, radius, intensity), shader);
     }
 
     @Override

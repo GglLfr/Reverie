@@ -6,7 +6,6 @@ public final class Api{
     public static final int
         commonForkJoinPool = 24,
         methodHandle = 26,
-        varHandle = 33,
         memoryOrder = 33;
 
     static{

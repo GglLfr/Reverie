@@ -23,6 +23,7 @@ public class MultilevelPlanet extends BasePlanet{
 
     public MultilevelPlanet(String name, Planet parent, float radius){
         super(name, parent, radius, 0);
+        meshLoader = MultilevelMesh::new;
     }
 
     @Override
