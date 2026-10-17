@@ -5,7 +5,9 @@ public final class Api{
 
     public static final int
         commonForkJoinPool = 24,
-        methodHandle = 26,
+    // Technically this should be 26, but there's no easy way to selectively dex polymorphic-signature calls.
+    // So only enable method handles on Desktop.
+    methodHandle = Integer.MAX_VALUE,
         memoryOrder = 33;
 
     static{

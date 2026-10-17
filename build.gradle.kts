@@ -176,17 +176,21 @@ project(":"){
     val dexOutput = layout.buildDirectory.file("dex/Dex.jar")
     val dex = tasks.register<Exec>("dex"){
         description = "Runs `d8` against the desktop JAR to build an ART bytecode."
+        dependsOn(jar) // Explicitly depend on :jar since there were no implicit dependencies.
         outputs.file(dexOutput).withPropertyName("output")
 
         val androidSdkVersion = providers.gradleProperty("androidSdkVersion").get()
         val androidBuildVersion = providers.gradleProperty("androidBuildVersion").get()
         val androidMinVersion = providers.gradleProperty("androidMinVersion").get()
-        val desktopJar = jar.flatMap{it.archiveFile}
+        val dexClasses = zipTree(jar.flatMap{it.archiveFile}).matching{
+            include("**/*.class")
+            exclude("reverie/util/reflect/Var*.class") // Exclude `MethodHandle`-based classes.
+        }
 
         inputs.property("sdkVersion", androidSdkVersion)
         inputs.property("buildVersion", androidBuildVersion)
         inputs.property("minVersion", androidMinVersion)
-        inputs.files(desktopJar).withPropertyName("jarOutput")
+        inputs.files(dexClasses).withPropertyName("dexClasses").withPathSensitivity(PathSensitivity.RELATIVE)
 
         val classpaths = files(configurations.compileClasspath, configurations.runtimeClasspath)
         inputs.files(classpaths).withPropertyName("artClasspaths").withNormalizer(ClasspathNormalizer::class.java)
@@ -203,8 +207,8 @@ project(":"){
             if(!d8.exists()) throw GradleException("Android SDK `build-tools;$androidBuildVersion` isn't installed or is corrupted")
 
             // Initialize a release build.
-            val input = desktopJar.get().asFile
-            val command = arrayListOf("$d8", "--release", "--min-api", androidMinVersion, "--output", "${dexOutput.get().asFile.absolutePath}", "$input")
+            val command = arrayListOf("$d8", "--release", "--min-api", androidMinVersion, "--output", "${dexOutput.get().asFile.absolutePath}")
+            command.addAll(dexClasses.files.map{it.absolutePath})
 
             // Include all compile and runtime classpath.
             classpaths.forEach{
