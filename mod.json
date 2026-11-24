@@ -6,8 +6,5 @@
     "minGameVersion": "160",
     "author": "Chime Tian",
     "java": true,
-    "main": "reverie.Reverie",
-    "dependencies": [
-        "env-alloc"
-    ]
+    "main": "reverie.Reverie"
 }

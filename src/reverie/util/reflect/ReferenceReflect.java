@@ -3,10 +3,10 @@ package reverie.util.reflect;
 import java.lang.reflect.*;
 
 @SuppressWarnings("unchecked")
-final class ReflectedReference<C, T> implements ReferenceFieldHandle<C, T>{
+final class ReferenceReflect<C, T> implements ReferenceField<C, T>{
     final Field field;
 
-    ReflectedReference(Field field){
+    ReferenceReflect(Field field){
         this.field = field;
     }
 

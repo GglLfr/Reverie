@@ -11,7 +11,8 @@ import java.util.concurrent.atomic.*;
 
 import static arc.Core.*;
 
-public final class Tasks{
+@SuppressWarnings({"deprecation", "RedundantSuppression"}) // This one is a bit weird.
+public final class Tasks{                                  // Gradle thinks `Thread#getId()` is deprecated, but IntelliJ thinks it is not.
     private static final ThreadLocal<Seq<Runnable>> tasks = ThreadLocal.withInitial(() -> new Seq<>(Runnable.class));
     private static final ForkJoinPool pool;
 

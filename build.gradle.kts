@@ -184,7 +184,7 @@ project(":"){
         val androidMinVersion = providers.gradleProperty("androidMinVersion").get()
         val dexClasses = zipTree(jar.flatMap{it.archiveFile}).matching{
             include("**/*.class")
-            exclude("reverie/util/reflect/Var*.class") // Exclude `MethodHandle`-based classes.
+            exclude("reverie/util/reflect/*Handle.class") // Exclude `MethodHandle`-based classes.
         }
 
         inputs.property("sdkVersion", androidSdkVersion)
