@@ -1,0 +1,232 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage[
+	a4paper,
+	left=30mm,
+	right=30mm,
+	top=30mm,
+	bottom=30mm,
+]{geometry}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{xcolor}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	urlcolor=blue
+}
+\setlength{\emergencystretch}{2em}
+\setlength{\parskip}{1em}
+\setlist{
+	itemsep=0.2em,
+	parsep=0pt,
+	topsep=0em,
+	partopsep=0pt
+}
+\setstretch{1.25}
+
+\newcommand{\sectionbreak}{
+	\par\bigskip
+	\noindent\rule{\linewidth}{0.4pt}
+	\par\bigskip
+}
+
+\title{Fundamentals of our world}
+\author{3\textsuperscript{rd} Grand Anchor, Azurite Auvren}
+\date{}
+
+\begin{document}
+	\maketitle
+	
+	\begin{quote}
+		\large
+		{\Huge\color{gray}``}\,
+		\textit{
+			[[Some quote]]
+		}
+	\end{quote}
+	
+	Have you ever seen the brilliant, iridescent light emanating from the deepest observable part of our home, as seen from the Grand Central Observatory? I would like to imagine that we all indeed have seen the Origin in our very early youths. Our upbringing would walk us along the sacred paths of the Lower Sanctum of the observatory, pointing towards the colorful radiance as they speak of tales older than time\ldots
+	
+	As time went on, countless quarrels have gone on between those rather\ldots \emph{passionate} about either preserving unquestioned customs and traditions, or pursuing the boundless expansion of interpretable knowledge. I would like to digress as soon as possible, but not before I mention that from this point on, I'll tread this subject with the utmost care and bear no ill will towards either extreme of the ideological spectrum.
+	
+	\sectionbreak
+	
+	\section{The quantities and relationships}
+	
+	On Megalith, our beloved home planet, there exists a quantifiable property so fundamental in our lives even when unseen. We call this the Numen, the same quantity---\emph{descriptions}, as some call it---that is most ordinarily associated with the Origin, albeit admittedly some number of people fail to see beyond.
+	
+	The Numen is everywhere, even far beyond the reach of the Origin, and presents itself with limitless potential practical uses waiting to be realized in our day-to-day lives. Let us begin by quantifying it as our initial construct \(q\), such that
+	\begin{equation}
+	q = \text{amount of Numen charge}
+	\end{equation}
+	
+	Emphasizing again on my lack of intent to degrade the Origin into an interpretable concept for all to shallowly recognize, as some might perceive this, let us think about what this number implies;
+	\begin{itemize}
+		\item for \(q = 0\), the net Numen charge is zero,
+		\item for \(q > 0\), the net Numen charge is positive,
+		\item for \(q < 0\), the net Numen charge is negative---not conventionally observed, but useful all the same for our purposes. I will elaborate more on this later.
+	\end{itemize}
+	
+	To bring this figure down to a level of familiarity, allow me to conjure a familiar example. Suppose that every single Numen-bearing device---lights, armories, even our very vessels---in some way contains a certain amount of Numen charge at certain periods in time. I will refer to this as our axiom in this discourse moving forward, and therefore model this relationship as
+	\begin{equation}
+	q(t) = \text{amount of Numen charge at time } t
+	\end{equation}
+	
+	Borrowing some terms from the preservers, we might notice that for most of these devices, they need to be periodically \emph{rejuvenated} with fresh Numen, lest they go \emph{inert} and therefore devoid of any practical uses. The periodic rejuvenation becomes necessarily more frequent as they are actively put to use. With the axiom in hand, this phenomenon can be intuitively modeled as some blackbox relationship between \(q\) and \(t\), such that
+	\begin{itemize}
+		\item
+		\begin{equation}
+		q(0) = q_0
+		\end{equation}
+		where \(q_0\) is some initial quantity of Numen charge; and
+		
+		\item
+		\begin{equation}
+		q'(t) = \frac{\mathrm{d}q}{\mathrm{d}t} = p(q,t)
+		\end{equation}
+		where \(p\) describes the depletion or replenishment of Numen charge caused respectively by practical usage or rejuvenation of the device. Here, depletion refers only to a reduction in the Numen charge held within the device. I will defer the question of where this charge actually goes until later in this discourse.
+	\end{itemize}
+	
+	Consider a simple case of a freshly charged lantern put to use constantly for a long time. Define
+	\begin{itemize}
+		\item
+		\begin{equation}
+		q_0 > 0
+		\end{equation}
+		because the lantern had just been rejuvenated at \(t = 0\); and
+		
+		\item
+		\begin{equation}
+			\begin{aligned}
+				p(q,t) &\propto -q \\
+				p(q,t) &= -kq, \quad \text{where } k > 0
+			\end{aligned}
+		\end{equation}
+		because, under otherwise unchanged operating conditions, observations suggest that the rate at which a lantern loses Numen charge is proportional to the charge residing within it.
+	\end{itemize}
+	
+	In the absence of subsequent rejuvenations, these pieces of information sufficiently model ideal Numen lanterns with simple differential calculus, such that
+	\begin{equation}
+	\begin{aligned}
+		q' &= -kq \\
+		\exp(kt)[q' + kq] &= \exp(kt)[0] \\
+		\frac{\mathrm{d}}{\mathrm{d}t}[q\exp(kt)] &= 0 \\
+		q\exp(kt) &= C_1 \\
+		q &= C_1\exp(-kt)
+	\end{aligned}
+	\end{equation}
+	
+	And since \(q(0) = q_0\), one can determine the particular solution by substituting the initial condition back into the general solution, such that
+	\begin{equation}
+	\begin{aligned}
+		q(0) = q_0 &= C_1\exp(-k(0)) \\
+		C_1 &= q_0 \\
+		q &= q_0\exp(-kt)
+	\end{aligned}
+	\end{equation}
+	
+	Therefore for the conditions listed above, this model describes a continuous exponential decay from the initial amount of charge over some period of time depending on the lanterns' charge consumption constant \(k\), approaching zero as \(t \to \infty\).
+	
+	The predictions of this model are compared with measurements with some error magnitudes, particularly with observable relative discrepancies at low measured Numen charges, as per the tabulated data in \hyperref[app:lantern]{Appendix~\ref*{app:lantern}}, which suggests some degree of truthfulness of this differential model. Of course, this only just barely scratches the very nature of Numen itself.
+	
+	\sectionbreak
+	
+	\appendix
+	
+	\section*{Appendix}
+	
+	\section{Rejuvenation--depletion characteristics of a practical Numen lantern}
+	\label{app:lantern}
+	
+	I conducted this experiment with a Numen lantern of unknown characteristics, rejuvenated with one controlled rekindling crosier, and measured against a standardized container vessel with rapid absorption rate.
+	
+	The lantern is prepared beforehand by standard extraction to deplete the charge as much as possible, and rejuvenated with the same amount of Numen from the crosier. Subsequent standard extractions are done after predefined periods of time, and the lantern is rejuvenated with the same amount again for the next time periods.
+	
+	The vessel measures Numen charge through the accumulated rotation of its measuring arm. The charge represented by each revolution depends on the scale's calibration. Fractional revolutions indicate fractional counts. More specifically, it is defined with this standard vessel equation the preservers have established, which is
+	\begin{equation}
+	n = \frac{Nr\theta}{360^\circ},
+	\quad N \in \mathbb{N}
+	\end{equation}
+	where
+	\begin{itemize}
+		\item \(n\) is the vessel \(\text{count}\);
+		\item \(N\) is the amount of tick marks in the scale;
+		\item \(r\) is the precision level of each tick, defined as the ratio of \(\text{count}\)-per-tick; and
+		\item \(\theta\) is the accumulated angular displacement of the scale arm, measured in degrees, including complete revolutions.
+	\end{itemize}
+	
+	The constant \(q_0\) is set as the vessel count for rejuvenation amount, while \(k\) is calculated from the first measurement for \(q_0 = 1\,\text{count}, \ t = 1\,\text{h}\).
+	
+	\begin{table}[H]
+		\centering
+		\caption{Lantern charge measurements}
+		
+		\begin{tabular}{c r c c c}
+			\toprule
+			\multicolumn{2}{c}{
+				\multirow{2}{*}{
+					\shortstack{Rejuvenation amount\\(counts)}
+				}
+			}
+			& \multicolumn{3}{c}{Extracted charge (counts)} \\
+			
+			\cmidrule{3-5}
+			& & \(t = 1\,\mathrm{h}\)
+			& \(t = 3\,\mathrm{h}\)
+			& \(t = 9\,\mathrm{h}\) \\
+			
+			\midrule
+			\multirow{2}{*}{\(1\)}
+			& Theoretical
+			& \textbf{0.7189}
+			& 0.3716
+			& 0.0513 \\
+			& Empirical
+			& 0.7189
+			& 0.3427
+			& 0.0006 \\
+			\addlinespace
+			
+			\multirow{2}{*}{\(5\)}
+			& Theoretical
+			& 3.5946
+			& 1.8579
+			& 0.2565 \\
+			& Empirical
+			& 3.6021
+			& 1.8316
+			& 0.3254 \\
+			\addlinespace
+			
+			\multirow{2}{*}{\(25\)}
+			& Theoretical
+			& 17.9731
+			& 9.2894
+			& 1.2826 \\
+			& Empirical
+			& 18.0017
+			& 9.2931
+			& 1.2462 \\
+			
+			\bottomrule
+		\end{tabular}
+		
+		\medskip
+		\begin{minipage}{\linewidth}
+			\centering
+			\footnotesize
+			
+			The bold entry corresponds to the calibration point used to obtain \(k \approx 0.33\,\mathrm{h}^{-1}\).
+		\end{minipage}
+	\end{table}
+\end{document}

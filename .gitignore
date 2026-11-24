@@ -10,3 +10,8 @@ build/
 .idea/
 .vscode/
 .kateproject
+
+# Project-specific
+assets/docs/reverie/**/*
+!assets/docs/reverie/**/
+!assets/docs/reverie/**/*.tex
