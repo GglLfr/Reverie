@@ -1,0 +1,201 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{../mathematics-of-monolith}
+
+\usepackage{enumitem}
+\usepackage[
+	a4paper,
+	left=30mm,
+	right=30mm,
+	top=30mm,
+	bottom=30mm,
+]{geometry}
+\usepackage[pdfpagelabels=false]{hyperref}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{tabularx}
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	urlcolor=blue
+}
+\setlength{\emergencystretch}{2em}
+\setlength{\parskip}{1em}
+\setlist{
+	itemsep=0.2em,
+	parsep=0pt,
+	topsep=0em,
+	partopsep=0pt
+}
+\setstretch{1.25}
+
+\newcommand{\sectionbreak}{
+	\par\bigskip
+	\noindent\rule{\linewidth}{0.4pt}
+	\par\bigskip
+}
+
+\title{Foundational Fluxions}
+\author{Regent, Malachite Auvren; \rune{41}\textsuperscript{st} Link, Azurite Auvren}
+\date{}
+
+\begin{document}
+	\maketitle
+	
+	In this discourse, we attempt to conjure a new hypothetical symbolic language for describing quantities and reasoning about their relationships, with the aim of applying such reasoning to day-to-day problems through logical modeling.
+	
+	We call this language, and the discipline concerned with its study, \textbf{Fluxions}. This chapter introduces its foundations: the representation of quantities through runes, the construction of expressions, the formulation of bindings between those expressions, and the manipulation of such bindings to establish assertions.
+	
+	\sectionbreak
+	
+	\section{Quantitative symbolic modeling}
+	\label{sec:quantitative-symbolic-modeling}
+	
+	First of all, we need to define what counting even \emph{is} in our hypothetical grand language of runes. More specifically, there needs to be a deterministic representation of \emph{quantities} that can be easily inscribed to---and interpreted from---the logical language that we are conjuring.
+	
+	To count is to determine how much there \emph{is} of \emph{something}. Before we ask how much there is, we may first ask whether there is anything at all; we distinguish absence from presence. Consider this customary excerpt:
+	
+	\begin{quote}
+		\large
+		\leavevmode
+		\llap{{\Huge\color{gray}``}\,}%
+		\textit{A newborn Soul, purest of all, \\
+				To nothing yet bound, \\
+				A fleeting light without a home, \\
+				Let flesh be bound ere it fades.
+		}
+	\end{quote}
+	
+	To bring a sense of familiarity, let us put a vessel in place of this hypothetical \emph{something} for us to work with. A newborn Soul is bare; it binds into nothing, and quickly disintegrates if left be. In the ephemeral, critical moments before a fitting body is bound, we may conclude that a newborn Soul is without a vessel; that is, there is a notable \emph{absence} of vessels within the context of the Soul. We define this quantity of absence as the \emph{nil} value, or otherwise called the \emph{zero} value---runically, this is the \rune{0} glyph.
+	
+	Suppose, then, that the Soul is bound into a fitting body. Whereas there was \emph{none}, there is now \emph{a} vessel to be counted. We give this quantity the name \emph{one}, runically described with the \rune{1} glyph. However, presence alone does not distinguish a single vessel from several---to count beyond this, we must learn to distinguish one from another.
+	
+	Let us now consider another Soul, likewise bound into its own vessel. Taken together, the vessels are now no longer described by \emph{one}; this quantity, the quantity that is the direct successor of \emph{one}, shall be defined as \emph{two}, inscribed runically with the \rune{2} glyph. Should another vesselbound Soul join them, we obtain \emph{three}, inscribed \rune{3}.
+	
+	{\centering
+		\renewcommand{\arraystretch}{1.4}%
+		
+		\captionof{table}{Runes of quantities \emph{nil} to \emph{three}}
+		\label{tab:runes-of-quantities-0-to-3}
+		
+		\begin{tabular}{r | c c c c}
+			Quantity
+			& \emph{nil}
+			& \emph{one}
+			& \emph{two}
+			& \emph{three} \\
+			
+			\cline{2-5}
+			Rune
+			& \rune{0}
+			& \rune{1}
+			& \rune{2}
+			& \rune{3}
+		\end{tabular}
+		\par
+	}
+
+	Compare these runic glyphs. \emph{Two} is distinguished by an outer diamond, while \emph{three} bears both that outer boundary and a filled core; that is, \emph{three} bears the resemblance of both \emph{one} and \emph{two} combined. Thus, \emph{three} records a pair together with a single vessel.
+	
+	Do also note that, in all of these glyphs thus far, a semblance of \emph{nil}---the \rune{0} glyph---can be observed. We retain this inner boundary as a reminder that a record of any quantity, paired with \emph{nil}, is equivalent to that quantity itself. The count of a vesselbound Soul (quantifies as \rune{1}) together with an unbound newborn Soul (quantifies as \rune{0}), with respect to vessels, is still equivalent to \rune{1}.
+	
+	Continuing the hypothetical scenario, suppose another vesselbound Soul joins the \emph{three}. We may now rearrange the vessels into a record of a pair together with another, with no lone vessel remaining. This quantity we call \emph{four}, inscribed \rune{4}. Observe that neither the filled core of \emph{one} nor the outer diamond of \emph{two} is marked; instead, an unfamiliar stroke begins anew, extending above and to the left of the central boundary. This stroke records a pair of pairs.
+	
+	A further vessel gives us \emph{five}, inscribed \rune{5}; a pair of pairs together with \emph{one}. Beginning again with \emph{four}, an additional pair gives us \emph{six}, inscribed \rune{6}; adding a lone vessel gives us \emph{seven}, inscribed \rune{7}. Each feature thus records a particular grouping: a single element, a pair, or a pair of pairs. When two groups of the same \textbf{order} are gathered, they are recorded as one group of the immediate next order. Each order is recorded at most once within a glyph; whenever a pair of groups of the same order occur, they must be replaced by a single group of the next order---this is established as the \textbf{unique order rule}.
+	
+	More precisely, a group of order \textbf{zero} contains \emph{one} element---in this case a vessel. Therefore, a pair of those vessels, which is to say a pair of groups of order \textbf{zero}, are coalesced as a single group of order \textbf{one}, which contains \emph{two} elements. Likewise, a pair of pairs of vessels, which is equivalently a pair of groups of order \textbf{one}, are coalesced as a single group of order \textbf{two}, which contains \emph{four} elements. We continue in this manner, assigning a distinct feature to each group order.
+	
+	{\centering
+		\renewcommand{\arraystretch}{1.4}
+		
+		\captionof{table}{Glyphs of group \textbf{orders}}
+		\label{tab:glyphs-of-group-orders}
+		
+		\begin{tabular}{r | c c c c c c}
+			Group order
+			& \emph{zero} 
+			& \emph{one}
+			& \emph{two}
+			& \emph{three} 
+			& \emph{four} 
+			& \emph{five} \\
+			
+			\cline{2-7}
+			Group glyph
+			& \runebit{0}
+			& \runebit{1}
+			& \runebit{2}
+			& \runebit{3}
+			& \runebit{4}
+			& \runebit{5}
+		\end{tabular}
+		\par
+	}
+	
+	Finally, consider now a successor of \emph{seven}. Its three recorded groups---a single vessel, a pair, and a pair of pairs; equivalently a group of order \textbf{zero}, \textbf{one}, and \textbf{two} respectively---must accommodate a further lone vessel. The \emph{two} single vessels form a pair; the pair of pairs then form a group of order \textbf{two}; and the pair of groups of that order form a single group of order \textbf{three}. We call this quantity, as traditionally defined by our existing spoken quantitative system, \emph{oneweft}, inscribed \rune{8}. The lower-order features are left unmarked, for their quantities are now accounted for entirely by the new group.
+	
+	As one last brief demonstration before moving on, the oneweft immediate successors to \emph{oneweft} alongside their runic glyphs are
+	
+	{\centering
+		\renewcommand{\arraystretch}{1.4}
+		
+		\captionof{table}{Runes of quantities \emph{oneweft one} to \emph{twoweft}}
+		\label{tab:runes-of-quantities-9-to-16}
+		
+		\begin{tabular}{c | c}
+			\multicolumn{1}{c}{Quantity} & \multicolumn{1}{c}{Rune} \\
+			
+			\cline{1-2}
+			\emph{oneweft one} & \rune{9} \\
+			\emph{oneweft two} & \rune{10} \\
+			\emph{oneweft three} & \rune{11} \\
+			\emph{oneweft four} & \rune{12} \\
+			\emph{oneweft five} & \rune{13} \\
+			\emph{oneweft six} & \rune{14} \\
+			\emph{oneweft seven} & \rune{15} \\
+			\emph{twoweft} & \rune{16} \\
+		\end{tabular}
+		\par
+	}
+	
+	\clearpage
+	
+	\section{Composing and transforming quantities}
+	\label{sec:composing-and-transforming-quantities}
+	
+	As shown in Table~\ref{tab:glyphs-of-group-orders}, there are six different group orders represented within a glyph, each with its own size class. The maximum representable quantity in a runic glyph is, therefore, a figure that corresponds to a glyph with all group orders available: \rune{63}, or \emph{sevenweft seven} in spoken terms, which has all group orders \runebit{0} \runebit{1} \runebit{2} \runebit{3} \runebit{4} \runebit{5}.
+	
+	Consider the successor of \emph{sevenweft seven}, which we know in spoken terms to be defined as \emph{oneknot}. As with the implied thought process in the previous section \nameref{sec:quantitative-symbolic-modeling}, a successor is obtained by introducing \rune{1}. By the \textbf{unique order rule}, this newly introduced \rune{1} causes the groups to cascade until only a single group of order \textbf{six} remains. This resulting quantity, which we call \emph{oneknot}, has no assigned feature within a single glyph.
+	
+	Rather than introducing a new feature, we allocate a new \textbf{place} for an existing glyph to take place. A glyph in this place records the quantity in terms of \emph{whole knots}, while the original place records individual elements. This new place effectively has a higher \textbf{base order}---\runebit{0} in that place corresponds to order \textbf{six}, \runebit{1} to \textbf{seven}, and so on. The places are joined together in an ascending manner, with those of lesser base order put before those of greater base order. Runic glyphs with multiple places are dubbed \textbf{compound numerals}; likewise, those with a single place are \textbf{simple numerals}.
+	
+	Thus, \emph{oneknot} is inscribed runically as a compound numeral \rune{64}: the knot place bears the glyph for \emph{one}, while the individual place bears \emph{nil}. Its successor, \emph{oneknot one}, inscribed \rune{65}, records one knot together with one remaining element. The same glyph may therefore contribute different quantities according to its designated place within a compound numeral.
+	
+	Some fairly large numbers to exemplify this positional principle in action are
+	
+	{\centering
+		\renewcommand{\arraystretch}{1.4}
+		\renewcommand{\tabularxcolumn}[1]{m{#1}}
+		
+		\captionof{table}{Compound rune examples}
+		\label{tab:compound-rune-examples}
+		
+		\begin{tabularx}{\linewidth}{
+			>{\centering\arraybackslash}X | c
+		}
+			\multicolumn{1}{c}{Quantity} & \multicolumn{1}{c}{Rune} \\
+			
+			\cline{1-2}
+			\emph{oneknot sevenweft three} & \rune{123} \\
+			\emph{oneknotspan oneweftspan fourspan fiveply fourknot fiveweft seven} & \rune{314159} \\
+			\emph{oneknotspan twospan twoply sevenknot twoweft four} & \rune{271828} \\
+			\emph{sevenweftbolt fivebolt twoplyspan sixknotspan sixweftspan twospan fiveply sixweft four} & \rune{1029384756}
+		\end{tabularx}
+		\par
+	}
+	
+	%An approach, as it turns out, is to logically break apart this quantity into two parts. Consider \rune{63} which has all group \textbf{order}s \rune{1} \rune{2} \rune{4} \rune{8} \rune{16} \rune{32}. As with the implied thought process in the previous section \nameref{sec:quantitative-symbolic-modeling}, a successor to that quantity may be computed by introducing \rune{1}, such that by the \textbf{unique order rule}, evaluating it results in a quantity of group \textbf{order} \textbf{six}, which conventionally has no assigned feature in a single glyph. However, by definition, a group of \textbf{order} \textbf{six} is a pair of groups of \textbf{order} \textbf{five}---a pair of \rune{32}. This reveals two out of many ways of representing \emph{oneknot}: a "combination" of \rune{63} and \rune{1}, as well as \rune{32} and \rune{32}. By extension, all quantities are, in one way or another, representable by breaking it apart into multiple quantities arranged in a "combination," which we will define as a \textbf{string}.
+\end{document}
